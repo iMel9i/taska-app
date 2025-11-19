@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: taska
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/taska
+      PORT: 4000
+    depends_on:
+      - db
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "3000:80"
+
+  bot:
+    build: ./bot
+    restart: always
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}                  # заменишь в Railway
+      WEBAPP_URL: ${WEBAPP_URL}                # заменишь в Railway
+      BACKEND_URL: http://backend:4000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data: 

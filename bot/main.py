@@ -1,0 +1,73 @@
+import asyncio
+import logging
+import os
+from aiogram import Bot, Dispatcher, Router, F
+from aiogram.types import Message, WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, aiohttp_server
+from aiohttp import web
+from pathlib import Path
+
+# --------------------- Конфиг ---------------------
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+WEBAPP_URL = os.getenv("WEBAPP_URL")  # Например https://taska-up.railway.app
+
+if not BOT_TOKEN or not WEBAPP_URL:
+    raise ValueError("Укажи BOT_TOKEN и WEBAPP_URL в переменных окружения!")
+
+# Папка со статикой фронтенда (куда Vite собирает build)
+STATIC_PATH = Path(__file__).parent / "static"
+STATIC_PATH.mkdir(exist_ok=True)
+
+# --------------------- Клавиатура ---------------------
+def get_keyboard():
+    button = KeyboardButton(
+        text="Открыть Таска",
+        web_app=WebAppInfo(url=WEBAPP_URL)
+    )
+    return ReplyKeyboardMarkup(keyboard=[[button]], resize_keyboard=True, one_time_keyboard=False)
+
+# --------------------- Хендлеры ---------------------
+router = Router()
+
+@router.message(F.text == "/start")
+@router.message(F.text.lower().contains("таска") | F.text.lower().contains("задачи"))
+async def cmd_start(message: Message):
+    await message.answer(
+        "Привет! Это Таска — твой групповой планировщик с матрицей Эйзенхауэра.\n\n"
+        "Нажми кнопку ниже и управляй задачами вместе с командой 👇",
+        reply_markup=get_keyboard()
+    )
+
+# --------------------- Web-сервер (webhook + статика) ---------------------
+async def on_startup(app: web.Application):
+    await bot.set_webhook(WEBAPP_URL + "/webhook")
+    logging.info("Webhook установлен")
+
+async def main():
+    global bot
+    logging.basicConfig(level=logging.INFO)
+
+    bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+    dp = Dispatcher()
+    dp.include_router(router)
+
+    app = web.Application()
+
+    # Раздаём статику фронтенда (чтобы всё работало по одному домену)
+    app.router.add_static("/static", STATIC_PATH, show_index=True)
+    app.router.add_get("/", lambda req: web.FileResponse(STATIC_PATH / "index.html"))
+
+    # Webhook для бота
+    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path="/webhook")
+    app.on_startup.append(on_startup)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 8000)))
+    await site.start()
+
+    print("Бот и веб-приложение запущены!")
+    await asyncio.Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main()) 

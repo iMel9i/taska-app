@@ -1,0 +1,31 @@
+{
+  "name": "taska-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tma.js/sdk": "^2.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "socket.io-client": "^4.7.5",
+    "frappe-gantt": "^0.6.1",
+    "fullcalendar": "^6.1.15",
+    "@fullcalendar/react": "^6.1.15",
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/timegrid": "^6.1.15"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  }
+} 
