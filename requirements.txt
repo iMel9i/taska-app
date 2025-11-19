@@ -1,0 +1,4 @@
+txt
+aiogram==2.25.1
+aiohttp==3.8.4
+python-dotenv==0.19.2
