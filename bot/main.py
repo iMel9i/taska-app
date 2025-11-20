@@ -15,7 +15,7 @@ if not BOT_TOKEN:
     raise ValueError("Укажи BOT_TOKEN в переменных окружения!")
 
 # Папка со статикой фронтенда (куда Vite собирает build)
-STATIC_PATH = Path(__file__).parent.parent / "Frontend" / "dist"
+STATIC_PATH = Path(__file__).parent / "static"
 STATIC_PATH.mkdir(exist_ok=True)
 
 # --------------------- Клавиатура ---------------------
