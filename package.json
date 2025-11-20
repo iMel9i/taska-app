@@ -2,7 +2,7 @@
   "name": "taska-app",
   "version": "1.0.0",
   "scripts": {
-    "build-frontend": "cd Frontend && npm install && npm run build",
+    "build-frontend": "cd frontend && npm install && npm run build",
     "postinstall": "npm run build-frontend"
   }
 }
